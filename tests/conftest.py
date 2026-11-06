@@ -12,6 +12,7 @@ from sqlalchemy import create_engine  # noqa: E402
 from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 from app import db as db_module  # noqa: E402
+from app import models  # noqa: E402,F401  (registers tables)
 from app.main import app  # noqa: E402
 
 
