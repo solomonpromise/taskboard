@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from .errors import install_error_handlers
 from .logging_setup import RequestLogMiddleware, configure_logging
-from .routes import auth, health, tasks
+from .routes import auth, health, labels, tasks
 
 configure_logging()
 
@@ -13,3 +13,4 @@ install_error_handlers(app)
 app.include_router(health.router)
 app.include_router(auth.router)
 app.include_router(tasks.router)
+app.include_router(labels.router)

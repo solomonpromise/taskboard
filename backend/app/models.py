@@ -64,3 +64,21 @@ class IdempotencyKey(Base):
     key: Mapped[str] = mapped_column(String(100), primary_key=True)
     response_json: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+
+class Label(Base):
+    __tablename__ = "labels"
+    __table_args__ = (UniqueConstraint("owner_id", "name", name="labels_owner_name_key"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(40), nullable=False)
+
+
+class TaskLabel(Base):
+    """Links tasks and labels (many-to-many). The composite primary key makes attaching twice harmless."""
+
+    __tablename__ = "task_labels"
+
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True)
+    label_id: Mapped[int] = mapped_column(ForeignKey("labels.id", ondelete="CASCADE"), primary_key=True)

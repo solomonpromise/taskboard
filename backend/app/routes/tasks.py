@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..deps import current_user
 from ..models import User
+from ..repositories import labels as labels_repo
 from ..repositories import tasks as tasks_repo
 from ..services import tasks as tasks_service
 
@@ -36,7 +37,9 @@ def list_tasks(status: str = Query("open", pattern="^(open|done)$"), limit: int 
 
 @router.get("/tasks/{task_id}")
 def get_task(task_id: int, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    return tasks_service.task_view(tasks_service.get_task(db, user, task_id), user)
+    task = tasks_service.get_task(db, user, task_id)
+    labels = labels_repo.labels_for_tasks(db, user.id, [task.id])[task.id]
+    return tasks_service.task_view(task, user, labels=labels)
 
 
 @router.post("/tasks", status_code=201)

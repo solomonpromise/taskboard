@@ -16,7 +16,7 @@ def test_migrations_upgrade_and_downgrade(tmp_path):
 
     command.upgrade(config, "head")
     tables = set(inspect(create_engine(url)).get_table_names())
-    assert {"users", "tasks", "sessions", "idempotency_keys"} <= tables
+    assert {"users", "tasks", "sessions", "idempotency_keys", "labels", "task_labels"} <= tables
 
     command.downgrade(config, "base")
     assert set(inspect(create_engine(url)).get_table_names()) <= {"alembic_version"}

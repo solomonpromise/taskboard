@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..errors import AppError
 from ..models import Task, User
+from ..repositories import labels as labels_repo
 from ..repositories import tasks as tasks_repo
 from .dates import is_overdue, user_today
 
@@ -27,7 +28,7 @@ def _check_due_date(due_date: date | None, user: User) -> date | None:
     return due_date
 
 
-def task_view(task: Task, user: User, today: date | None = None) -> dict:
+def task_view(task: Task, user: User, today: date | None = None, labels: list[dict] | None = None) -> dict:
     today = today or user_today(user.time_zone)
     return {
         "id": task.id,
@@ -37,6 +38,7 @@ def task_view(task: Task, user: User, today: date | None = None) -> dict:
         "is_overdue": (not task.is_done) and is_overdue(task.due_date, today),
         "created_at": task.created_at.isoformat(),
         "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+        "labels": labels if labels is not None else [],
     }
 
 
@@ -44,7 +46,9 @@ def list_tasks(db: Session, user: User, *, done: bool, limit: int, offset: int) 
     rows = tasks_repo.list_for_owner(db, user.id, done=done, limit=limit + 1, offset=offset)
     today = user_today(user.time_zone)
     next_offset = offset + limit if len(rows) > limit else None
-    return [task_view(t, user, today) for t in rows[:limit]], next_offset
+    rows = rows[:limit]
+    labels = labels_repo.labels_for_tasks(db, user.id, [t.id for t in rows])
+    return [task_view(t, user, today, labels[t.id]) for t in rows], next_offset
 
 
 def get_task(db: Session, user: User, task_id: int) -> Task:
