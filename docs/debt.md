@@ -1,0 +1,11 @@
+# Technical debt
+
+Known compromises, why they were made, and what repaying them takes (book Chapter 23).
+
+| Item | Why | Repay by |
+|---|---|---|
+| Sign-in guess limiting is in memory, per process | Simple for one server | Store attempt counts in the database or a cache when running several servers |
+| Breached-password check uses a small built-in list | No external dependency | Add a k-anonymity breached-password service check at sign-up |
+| No password reset or email verification yet | Out of scope for v1 | Add verified email first, then single-use, time-limited reset links |
+| Reminder window is 07:00–07:14 local time | Job runs every 15 minutes | Fine unless users ask for custom times |
+| Open-task limit counts rows in Python | Simple and correct at current scale | Use a COUNT query if the limit grows |
