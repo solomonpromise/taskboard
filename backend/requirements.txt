@@ -4,3 +4,4 @@ sqlalchemy==2.0.36
 alembic==1.14.0
 pwdlib[argon2]==0.2.1
 pydantic[email]==2.10.3
+tzdata==2024.2
