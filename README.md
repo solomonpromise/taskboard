@@ -12,7 +12,7 @@ and permissions, tests, the deployment pipeline, backups) exists here as real, w
 Needs Python 3.12+, Node.js 20+ and Git.
 
 ```bash
-git clone <this repository> taskboard && cd taskboard
+git clone https://github.com/solomonpromise/taskboard.git && cd taskboard
 make install     # backend virtualenv + packages, frontend packages, creates backend/.env
 make migrate     # creates the local SQLite database
 make dev         # backend on :8000, frontend on http://localhost:5173
