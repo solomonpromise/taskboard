@@ -82,3 +82,22 @@ class TaskLabel(Base):
 
     task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True)
     label_id: Mapped[int] = mapped_column(ForeignKey("labels.id", ondelete="CASCADE"), primary_key=True)
+
+
+class OutboxMessage(Base):
+    """Emails to send, written in the same transaction as the decision to send them (book Chapter 22).
+
+    dedupe_key is unique, so the same reminder can never be queued twice.
+    """
+
+    __tablename__ = "outbox"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    dedupe_key: Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
+    recipient: Mapped[str] = mapped_column(String(254), nullable=False)
+    subject: Mapped[str] = mapped_column(String(200), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_error: Mapped[str | None] = mapped_column(String(300), nullable=True)
