@@ -9,3 +9,4 @@ Known compromises, why they were made, and what repaying them takes (book Chapte
 | No password reset or email verification yet | Out of scope for v1 | Add verified email first, then single-use, time-limited reset links |
 | Reminder window is 07:00–07:14 local time | Job runs every 15 minutes | Fine unless users ask for custom times |
 | Open-task limit counts rows in Python | Simple and correct at current scale | Use a COUNT query if the limit grows |
+| Tests use `httpx` with Starlette's test client, which now recommends a newer client package | Verify the recommended package's origin and maintainers before adopting it (book Chapter 16) | Switch `requirements-dev.txt` once verified; remove the warning filter in `pytest.ini` |
