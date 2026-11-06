@@ -1,0 +1,27 @@
+# secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# installed dependencies
+node_modules/
+.venv/
+
+# build output and caches
+dist/
+build/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# local data
+*.sqlite
+*.db
+*.log
+uploads/
+
+# editor and OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
