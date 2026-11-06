@@ -1,0 +1,62 @@
+# Continuous integration (book Chapter 31): every pull request and every push to main
+# is installed, tested, built and checked the same way.
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: taskboard, POSTGRES_PASSWORD: taskboard, POSTGRES_DB: taskboard }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U taskboard" --health-interval 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: backend/requirements*.txt }
+      - run: pip install -r backend/requirements-dev.txt pip-audit
+      - name: Unit, API and permission tests
+        run: python -m pytest
+      - name: Migrations apply cleanly to PostgreSQL
+        working-directory: backend
+        env: { DATABASE_URL: "postgresql+psycopg://taskboard:taskboard@localhost:5432/taskboard" }
+        run: alembic upgrade head && alembic downgrade base && alembic upgrade head
+      - name: Known-vulnerable dependencies
+        run: pip-audit -r backend/requirements.txt
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci
+      - run: npm test
+      - name: Type-check and build
+        run: npm run build
+      - name: Known-vulnerable dependencies
+        run: npm audit --audit-level=high --omit=dev
+
+  smoke:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc }
+      - run: pip install -r backend/requirements.txt
+      - run: cd frontend && npm ci && npm run build
+      - name: Start the app and smoke-test it
+        run: |
+          cd backend && cp .env.example .env && alembic upgrade head
+          uvicorn app.main:app --port 8000 &
+          sleep 3
+          cd .. && python scripts/smoke_test.py http://localhost:8000
