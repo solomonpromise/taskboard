@@ -5,6 +5,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:   # run by hand from the Actions tab; the secret scan then checks the whole history
 
 jobs:
   backend:
@@ -30,8 +31,8 @@ jobs:
         run: pip-audit -r backend/requirements.txt
 
   secrets:
-    # Secret scanning (book Chapter 17): fail the build if a key or password is committed,
-    # anywhere in the history, not just the latest files.
+    # Secret scanning (book Chapter 17): fail the build if a key or password is committed.
+    # Pushes and pull requests scan their new commits; a manual run scans the whole history.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
