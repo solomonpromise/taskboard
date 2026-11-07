@@ -30,3 +30,39 @@ sequenceDiagram
   A-->>B: 201 task JSON
   B->>B: show task, "Task added"
 ```
+
+## Signing in
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant A as API
+  participant D as Database
+  B->>A: POST /v1/auth/sign-in {email, password} over HTTPS
+  A->>A: sign-in guess limit for this email
+  A->>D: find user by email
+  A->>A: verify password against the Argon2 hash
+  alt wrong email or password
+    A-->>B: 401 "Email or password is incorrect" (same message either way)
+  else correct
+    A->>D: store a hash of a new random session token
+    A-->>B: 200 user JSON + Set-Cookie: session (HttpOnly, SameSite=Lax) and CSRF cookie
+    B->>A: GET /v1/tasks (cookie added by browser)
+  end
+```
+
+## Retrieving tasks later
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant A as API
+  participant D as Database
+  B->>B: show loading rows
+  B->>A: GET /v1/tasks?status=open (session cookie)
+  A->>D: look up the session by token hash → user
+  A->>D: SELECT … WHERE owner_id = user AND is_done = false (index on owner_id, is_done, due_date)
+  D-->>A: rows, soonest due first, undated last
+  A-->>B: 200 {items, next_cursor}
+  B->>B: show the list; overdue tasks marked with icon and text
+```

@@ -29,6 +29,16 @@ jobs:
       - name: Known-vulnerable dependencies
         run: pip-audit -r backend/requirements.txt
 
+  secrets:
+    # Secret scanning (book Chapter 17): fail the build if a key or password is committed,
+    # anywhere in the history, not just the latest files.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+
   frontend:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: frontend } }
@@ -44,7 +54,7 @@ jobs:
         run: npm audit --audit-level=high --omit=dev
 
   smoke:
-    needs: [backend, frontend]
+    needs: [backend, frontend, secrets]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

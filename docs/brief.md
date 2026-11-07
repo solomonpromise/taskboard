@@ -21,8 +21,15 @@ are easily lost and don't show the full picture.
 - My tasks: soonest due first, undated last, overdue highlighted with icon and text.
 - Users can only ever see and change their own tasks.
 
-**Later.** Email reminders (done), labels (done), priorities, team sharing, mobile app.
+**Later.** Password reset with email verification, email reminders (done), labels (done), priorities, team sharing, mobile app.
 **Not doing for now.** Attachments, time tracking, AI suggestions, calendar sync.
 
-**Decided.** "Today" uses the user's time zone, saved on their profile.
+**Quality.** Every acceptance criterion passes. Task list in under one second for 95% of requests. A new
+user can add a task within ten seconds. Every action works by keyboard. No user can access another user's data.
+
+**Constraints and assumptions.** One builder; under $50 a month to run; up to 10,000 users in the first
+year. Assume no offline use and no teams in version 1.
+
+**Decided.** "Today" uses the user's time zone, saved on their profile. No password reset in version 1:
+a reset link is only safe once email addresses are verified, so both move to "Later".
 **Still open.** How long are deleted tasks kept? (Currently: deleted immediately.)

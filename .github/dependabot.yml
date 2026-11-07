@@ -1,0 +1,13 @@
+# Dependency updates (book Chapters 16 and 34): small, regular update pull requests,
+# reviewed every Monday instead of one large, risky upgrade later.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /backend
+    schedule: { interval: weekly, day: monday }
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule: { interval: weekly, day: monday }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday }

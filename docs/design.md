@@ -21,5 +21,24 @@
 
 See [`architecture.md`](architecture.md) for diagrams and [`decisions/`](decisions/) for the reasons.
 
+## Quality tactics (book Chapter 23)
+
+| Quality | Tactic |
+|---|---|
+| Security | Owner filter in every query; deny by default; sessions in HttpOnly cookies plus CSRF tokens; slow password hashes; sign-in guess limiting |
+| Reliability | Database constraints; idempotency keys on task creation; outbox for reminder emails; `/health` checks the database |
+| Performance | Index on `tasks(owner_id, is_done, due_date)`; paginated lists; labels loaded in one query |
+| Privacy | Collect only name, email, time zone and tasks; no personal data in logs; account export and deletion before public launch (`debt.md`) |
+| Accessibility | Real buttons and labels; visible focus; overdue shown with text, not colour alone |
+| Maintainability | Routes → services → repositories layers; ADRs; tests for every acceptance criterion |
+
+## One-way doors
+
+The data model and the API contract are expensive to change once clients and real data depend on them.
+Changing either needs a new ADR, and breaking API changes go through a new version (`/v2/`).
+
+## Out of scope for v1
+- Password reset and email verification (see [`brief.md`](brief.md)).
+
 ## Open questions
-- Retention of deleted tasks. Password reset (needs email verification first).
+- Retention of deleted tasks.
